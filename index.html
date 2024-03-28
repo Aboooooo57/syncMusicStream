@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Music Player</title>
+</head>
+<body>
+    <audio id="audio-player" controls src="/music.mp3"></audio>
+
+    <script>
+        var audioPlayer = document.getElementById('audio-player');
+
+        // WebSocket server address
+        var websocketServer = "ws://localhost:8001";
+
+        // Create a WebSocket connection
+        var ws = new WebSocket(websocketServer);
+
+        // Event listener for WebSocket open connection
+        ws.onopen = function() {
+            console.log("WebSocket connection established.");
+        };
+
+        // Event listener for WebSocket messages
+        ws.onmessage = function(event) {
+            // Parse the message and extract the playback position
+            var message = event.data;
+            if (message.startsWith("MASTER_POSITION:")) {
+                // Extract the playback position from the message
+                var playbackPosition = parseFloat(message.split(":")[1]);
+                // Get the current playback position of the audio element
+                var currentPlaybackPosition = audioPlayer.currentTime;
+                // Send the current playback position to the server
+                ws.send("SLAVE_POSITION:" + currentPlaybackPosition);
+            }
+        };
+
+        // Start monitoring the playback position
+        audioPlayer.addEventListener('timeupdate', function() {
+            // Send the current playback position to the server periodically
+            ws.send("SLAVE_POSITION:" + audioPlayer.currentTime);
+        });
+    </script>
+</body>
+</html>
