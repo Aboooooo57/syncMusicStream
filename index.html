@@ -3,44 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Music Player</title>
+    <title>WebSocket Music Player (Master)</title>
 </head>
 <body>
-    <audio id="audio-player" controls src="/music.mp3"></audio>
+    <h1>WebSocket Music Player (Master)</h1>
+
+    <label for="deviceId">Device ID:</label>
+    <input type="text" id="deviceId" name="deviceId">
+    <button onclick="registerDevice()">Register</button>
+
+    <br><br>
+
+    <audio id="audioPlayer" controls>
+        <source src="/music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 
     <script>
-        var audioPlayer = document.getElementById('audio-player');
+        var websocket = new WebSocket("ws://localhost:8001");
+        var audioPlayer = document.getElementById("audioPlayer");
+        var deviceIdInput = document.getElementById("deviceId");
 
-        // WebSocket server address
-        var websocketServer = "ws://localhost:8001";
+        function registerDevice() {
+            var deviceId = deviceIdInput.value;
+            if (deviceId) {
+                var message = "REGISTER_DEVICE:" + deviceId;
+                websocket.send(message);
+                console.log("Registered device:", deviceId);
+            } else {
+                console.log("Please provide a device ID.");
+            }
+        }
 
-        // Create a WebSocket connection
-        var ws = new WebSocket(websocketServer);
+        audioPlayer.addEventListener("play", function() {
+            var deviceId = deviceIdInput.value;
+            if (deviceId) {
+                var message = "PLAY:" + deviceId;
+                websocket.send(message);
+                console.log("Sent play command to all devices.");
+            }
+        });
 
-        // Event listener for WebSocket open connection
-        ws.onopen = function() {
-            console.log("WebSocket connection established.");
-        };
+        audioPlayer.addEventListener("pause", function() {
+            var deviceId = deviceIdInput.value;
+            if (deviceId) {
+                var message = "PAUSE:" + deviceId;
+                websocket.send(message);
+                console.log("Sent pause command to all devices.");
+            }
+        });
 
-        // Event listener for WebSocket messages
-        ws.onmessage = function(event) {
-            // Parse the message and extract the playback position
+        audioPlayer.addEventListener("timeupdate", function() {
+            var deviceId = deviceIdInput.value;
+            var position = audioPlayer.currentTime;
+            if (deviceId) {
+                var message = "UPDATE_POSITION:" + deviceId + ":" + position;
+                websocket.send(message);
+                console.log("Updated position for device:", deviceId, "Position:", position);
+            }
+        });
+
+        websocket.onmessage = function(event) {
             var message = event.data;
-            if (message.startsWith("MASTER_POSITION:")) {
-                // Extract the playback position from the message
-                var playbackPosition = parseFloat(message.split(":")[1]);
-                // Get the current playback position of the audio element
-                var currentPlaybackPosition = audioPlayer.currentTime;
-                // Send the current playback position to the server
-                ws.send("SLAVE_POSITION:" + currentPlaybackPosition);
+            if (message.startsWith("playing:")) {
+                // Extract the device ID from the message
+                var deviceId = message.split(":")[1];
+                console.log("Received play command for device:", deviceId);
+                // Handle the play command here, for example:
+                // Start playing the audio on this device
+                audioPlayer.play();
+            }
+            else if (message.startsWith("paused:")){
+                var deviceId = message.split(":")[1];
+                console.log("Received paused command for device:", deviceId);
+                audioPlayer.pause();
             }
         };
-
-        // Start monitoring the playback position
-        audioPlayer.addEventListener('timeupdate', function() {
-            // Send the current playback position to the server periodically
-            ws.send("SLAVE_POSITION:" + audioPlayer.currentTime);
-        });
     </script>
 </body>
 </html>
