@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Music Player (Master)</title>
+
 </head>
 <body>
     <h1>WebSocket Music Player (Master)</h1>
@@ -16,136 +17,6 @@
     </audio>
     <button onclick="syncMusic()">Sync Music</button> <!-- New button for syncing music -->
 
-    <script>
-        var websocket = new WebSocket("ws://localhost:8001");
-        var audioPlayer = document.getElementById("audioPlayer");
-        var locallyInitiatedPlay = false;
-        const deviceId = getCookie("usr");
-        var callerId = deviceId;
-
-
-        function syncMusic(){
-            console.log(deviceId,"deviceid")
-            if (deviceId) {
-                var message = "SYNC_MUSIC:" + deviceId;
-                websocket.send(message);
-                console.log("Sent sync music command to all devices.");
-            } else {
-                console.log("Please provide a device ID.");
-            }
-        }
-        function registerDevice() {
-            if (websocket.readyState === WebSocket.OPEN) {
-                // WebSocket connection is open, proceed to send message
-                if (deviceId) {
-                    var message = "REGISTER_DEVICE:" + deviceId;
-                    websocket.send(message);
-                    console.log("Registered device:", deviceId);
-                } else {
-                    console.log("Please provide a device ID.");
-                }
-            } else {
-                console.log("WebSocket connection not open.");
-            }
-        }
-
-
-
-        audioPlayer.addEventListener("play", function() {
-            console.log(locallyInitiatedPlay,"111111",callerId,"222222",deviceId)
-            if (!locallyInitiatedPlay || parseInt(callerId) !== parseInt(deviceId)) {
-                if (deviceId) {
-                    var message = "PLAY:" + deviceId;
-                    websocket.send(message);
-                    console.log("Sent play command to all devices.");
-                }
-            }
-            locallyInitiatedPlay = false;
-        });
-
-        audioPlayer.addEventListener("pause", function() {
-            if (!locallyInitiatedPlay || parseInt(callerId) !== parseInt(deviceId)) {
-                if (deviceId) {
-                    var message = "PAUSE:" + deviceId;
-                    websocket.send(message);
-                    console.log("Sent pause command to all devices.");
-                }
-            }
-            locallyInitiatedPlay = false;
-        });
-
-        audioPlayer.addEventListener("timeupdate", function() {
-            var position = audioPlayer.currentTime;
-            if (deviceId) {
-                var message = "UPDATE_POSITION:" + deviceId + ":" + position;
-                if (Math.abs(audioPlayer.currentTime - position) > 1) {
-                    websocket.send(message);
-                    console.log("Updated position for device:", deviceId, "Position:", position);
-                } else {
-                    console.log("Updated position for device:", deviceId, "not sent");
-                }
-            }
-        });
-
-        websocket.onmessage = function(event) {
-
-            var message = event.data;
-            console.log("Received message from server:", message);
-
-            var parts = message.split(":");
-            var recievedDeviceId = parts[1];
-            if (message.startsWith("playing:") || message.startsWith("paused:")) {
-                console.log(recievedDeviceId);
-                console.log(deviceId);
-                if (parseInt(recievedDeviceId) !== parseInt(deviceId)) {
-                    callerId = recievedDeviceId;
-                    if (message.startsWith("playing:")) {
-                        locallyInitiatedPlay = true;
-                        console.log("Received play command from device:", recievedDeviceId);
-                        audioPlayer.play();
-                    } else {
-                        locallyInitiatedPlay = true;
-                        console.log("Received paused command from device:", recievedDeviceId);
-                        audioPlayer.pause();
-                    }
-                }
-            }
-            else if (message.startsWith("position_update:")){
-                var deviceId = parts[1];
-                var position = parseFloat(parts[2]);
-                console.log("Received position update from device:", deviceId, "Position:", position);
-                if (!isNaN(position) && ( audioPlayer.currentTime+1 <position) || audioPlayer.currentTime-1 > position ) {
-                    console.log("i'm here")
-                    audioPlayer.currentTime = position;
-                }
-            }
-        };
-        function getCookie(name) {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                const [cookieName, cookieValue] = cookie.trim().split('=');
-                if (cookieName === name) {
-                    return decodeURIComponent(cookieValue);
-                }
-            }
-            return null;
-        }
-
-        websocket.onopen = function(event) {
-            console.log("WebSocket connection established.");
-            registerDevice();
-        };
-
-        // // Event handler for WebSocket errors
-        // websocket.onerror = function(event) {
-        //     console.error("WebSocket error:", event);
-        // };
-        //
-        // // Event handler for WebSocket connection closures
-        // websocket.onclose = function(event) {
-        //     console.log("WebSocket connection closed.");
-        // };
-
-    </script>
 </body>
+<script src="{{ url_for('static', path='js/js.js') }}"></script>
 </html>

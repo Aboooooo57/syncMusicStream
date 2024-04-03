@@ -3,6 +3,22 @@ import websockets
 from settings import SOCKET_SERVER, SOCKET_SERVER_PORT
 
 
+async def connect_or_reconnect(websocket_connection):
+    # Check if the WebSocket connection is open
+    if websocket_connection and websocket_connection.open:
+        return True  # WebSocket connection is open
+    else:
+        try:
+            host = SOCKET_SERVER
+            port = int(SOCKET_SERVER_PORT) if isinstance(SOCKET_SERVER_PORT, str) else SOCKET_SERVER_PORT
+            websocket_connection = await websockets.connect(f"ws://{host}:{port}")
+            return True  # WebSocket connection established successfully
+        except Exception as e:
+            # Handle connection errors
+            print(f"Failed to connect to WebSocket server: {e}")
+            return False  # Failed to establish WebSocket connection
+
+
 async def setup_websocket_server():
     host = SOCKET_SERVER
     port = int(SOCKET_SERVER_PORT) if isinstance(SOCKET_SERVER_PORT, str) else SOCKET_SERVER_PORT
@@ -18,21 +34,26 @@ async def start_websocket_server():
 connected_clients = {}
 
 
-async def broadcast_status(device_id,status):
+async def broadcast_status(device_id, status):
     global connected_clients
-    print(connected_clients)
+    # print(connected_clients)
     for other_id, other_data in connected_clients.items():
         if status is True:
-            print("Broadcasting status for device", device_id, "to", other_id)
             message = f"playing:{device_id}"
-            print(other_id != device_id,"other_id != device_id")
-            print(connected_clients[other_id]["PlayOrPause"] is False,"connected_clients[other_id]is False")
             if other_id != device_id and connected_clients[other_id]["PlayOrPause"] is False:
-                await other_data["websocket"].send(message)
+                if await connect_or_reconnect(other_data["websocket"]):
+                    await other_data["websocket"].send(message)
+                    print("Broadcasting status is OKK")
+                else:
+                    print("Broadcasting status Failed")
         else:
             message = f"paused:{device_id}"
             if other_id != device_id and connected_clients[other_id]["PlayOrPause"] is True:
-                await other_data["websocket"].send(message)
+                if await connect_or_reconnect(other_data["websocket"]):
+                    await other_data["websocket"].send(message)
+                    print("Broadcasting status is OKK")
+                else:
+                    print("Broadcast status Failed")
 
 
 async def websocket_handler(websocket, path):
@@ -55,13 +76,13 @@ async def websocket_handler(websocket, path):
             device_id = parts[1]
             connected_clients[device_id]["PlayOrPause"] = True
             print(f"Device {device_id} playing.")
-            await broadcast_status(device_id,True)
+            await broadcast_status(device_id, True)
         elif message.startswith("PAUSE:"):
             parts = message.split(":")
             device_id = parts[1]
             connected_clients[device_id]["PlayOrPause"] = False
             print(f"Device {device_id} paused.")
-            await broadcast_status(device_id,False)
+            await broadcast_status(device_id, False)
         elif message.startswith("SYNC_MUSIC:"):
             parts = message.split(":")
             device_id = parts[1]
