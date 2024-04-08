@@ -6,7 +6,7 @@ from minio import Minio
 from minio.error import S3Error
 from minio.versioningconfig import VersioningConfig
 
-from settings import MINIO_BUCKET_NAME
+from settings import MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_PORT
 from minio.lifecycleconfig import Expiration, Rule, LifecycleConfig
 from minio.commonconfig import Filter
 
@@ -21,13 +21,18 @@ class MinioClient:
         self.access_key = access_key
         self.secret_key = secret_key
         self.secure = secure
+        print(self.endpoint)
+        print(self.access_key)
+        print(self.secret_key)
+        print(self.secure)
         self.client = Minio(endpoint,
                             access_key=access_key,
                             secret_key=secret_key,
                             secure=secure)
 
     @classmethod
-    def get_instance(cls, endpoint="localhost:9000", access_key="minioadmin", secret_key="minioadmin"):
+    def get_instance(cls, endpoint=f"{MINIO_ENDPOINT}:{MINIO_PORT}", access_key=MINIO_ACCESS_KEY,
+                     secret_key=MINIO_SECRET_KEY):
         if cls._instance is None:
             cls._instance = cls(endpoint, access_key, secret_key)
         return cls._instance

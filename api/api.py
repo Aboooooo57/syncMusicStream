@@ -1,6 +1,4 @@
 import os
-import random
-import time
 
 from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.responses import HTMLResponse, Response
@@ -13,6 +11,7 @@ from minio.error import InvalidResponseError
 from utils import decrypt_version_id, encrypt_version_id
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="templates"), name="static")
