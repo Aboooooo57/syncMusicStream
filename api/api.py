@@ -25,6 +25,15 @@ def generate_cookie_value():
     hash_object = sha256(random_bytes)
     return hash_object.hexdigest()
 
+@app.get("/upload")
+async def upload():
+    try:
+        html_content = templates.get_template("upload.html").render()
+        response = HTMLResponse(content=html_content)
+        return response
+    except InvalidResponseError as err:
+        return {"error": f"Failed to retrieve file: {err}"}
+
 
 @app.post("/uploadfile/")
 async def upload_file(file: UploadFile = File(...)):
