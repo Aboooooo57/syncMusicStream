@@ -9,12 +9,12 @@ services:
     ports:
       - "8000:8000"
     networks:
-      - musicstream_default
+      - musicstream_net
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ENDPOINT: minio
       MINIO_PORT: ${MINIO_PORT}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
@@ -43,7 +43,7 @@ services:
         - "9000:9000"
         - "9010:9010"
       networks:
-        - musicstream_default
+        - musicstream_net
       healthcheck:
         test: ["CMD","curl","-f","http://localhost:9010/minio/health/live"]
         interval: 30s
@@ -57,6 +57,5 @@ services:
         - /Users/abolfazlsaeidi/Documents/minio/config:/root/.minio
 
 networks:
-  musicstream_default:
-    external: true
-    name: musicstream_default
+  musicstream_net:
+    name: musicstream_net
