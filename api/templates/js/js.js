@@ -1,4 +1,4 @@
-var websocket = new WebSocket("ws://localhost:8002");
+var websocket = new WebSocket("ws://185.230.162.51:8002");
 var audioPlayer = document.getElementById("audioPlayer");
 var locallyInitiatedPlay = false;
 const deviceId = getCookie("usr");
