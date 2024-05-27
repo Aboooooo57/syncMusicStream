@@ -21,20 +21,19 @@ services:
       HOST: ${HOST}
       CRYPTOGRAPHY_KEY: ${CRYPTOGRAPHY_KEY}
     depends_on:
-      - ws
       - minio
 
-  ws:
-    build:
-      context: wsocket
-      dockerfile: Dockerfile
-    ports:
-      - "8002:8002"
-    environment:
-      SOCKET_SERVER: ${SOCKET_SERVER}
-      SOCKET_SERVER_PORT: ${SOCKET_SERVER_PORT}
-    depends_on:
-      - minio
+#  ws:
+#    build:
+#      context: wsocket
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8002:8002"
+#    environment:
+#      SOCKET_SERVER: ${SOCKET_SERVER}
+#      SOCKET_SERVER_PORT: ${SOCKET_SERVER_PORT}
+#    depends_on:
+#      - minio
 
   minio:
       image: minio/minio:latest
