@@ -33,20 +33,31 @@ async def start_websocket_server():
 connected_clients = {}
 
 
-async def broadcast_status(device_id, status):
+async def broadcast_status(usr_cookie, status):
     global connected_clients
+    parts = usr_cookie.split(":")
+    version_id = parts[0]
+    device_id = parts[1]
+    print(status)
     for other_id, other_data in connected_clients.items():
+        print(other_id != f"{version_id}:{device_id}", "first" * 4)
+        print(connected_clients[other_id]["PlayOrPause"], "second" * 10)
+        print(version_id == other_id.split(":")[0], "last" * 5)
+        print(other_id.split(":")[0])
+        print(version_id,"version_id"*3)
         if status is True:
-            message = f"playing:{device_id}"
-            if other_id != device_id and connected_clients[other_id]["PlayOrPause"] is False:
+            message = f"playing:{version_id}:{device_id}"
+            if other_id != f"{version_id}:{device_id}" and connected_clients[other_id]["PlayOrPause"] is False and (
+                    version_id == other_id.split(":")[0]):
                 if await connect_or_reconnect(other_data["wsocket"]):
                     await other_data["wsocket"].send(message)
                     print("Broadcasting status is OKK")
                 else:
                     print("Broadcasting status Failed")
         else:
-            message = f"paused:{device_id}"
-            if other_id != device_id and connected_clients[other_id]["PlayOrPause"] is True:
+            message = f"paused:{version_id}:{device_id}"
+            if other_id != f"{version_id}:{device_id}" and connected_clients[other_id]["PlayOrPause"] is True and (
+                    version_id == other_id.split(":")[0]):
                 if await connect_or_reconnect(other_data["wsocket"]):
                     await other_data["wsocket"].send(message)
                     print("Broadcasting status is OKK")
@@ -57,32 +68,30 @@ async def broadcast_status(device_id, status):
 async def websocket_handler(websocket, path):
     global connected_clients
     async for message in websocket:
+        parts = message.split(":")
         print(f"Received message: {message}")
         if message.startswith("REGISTER_DEVICE:"):
-            device_id = message.split(":")[1]
+            print(message)
+            device_id = parts[1] + ":" + parts[2]
             connected_clients[device_id] = {"wsocket": websocket, "position": None, "PlayOrPause": False}
             print(f"Device {device_id} connected.")
         elif message.startswith("UPDATE_POSITION:"):
-            parts = message.split(":")
             device_id = parts[1]
             position = float(parts[2])
             connected_clients[device_id]["position"] = position
             print(f"Device {device_id} updated position: {position}")
             await broadcast_positions()
         elif message.startswith("PLAY:"):
-            parts = message.split(":")
-            device_id = parts[1]
-            connected_clients[device_id]["PlayOrPause"] = True
-            print(f"Device {device_id} playing.")
-            await broadcast_status(device_id, True)
+            usr_cookie = parts[1] + ":" + parts[2]
+            connected_clients[usr_cookie]["PlayOrPause"] = True
+            print(f"Device {usr_cookie} playing.")
+            await broadcast_status(usr_cookie, True)
         elif message.startswith("PAUSE:"):
-            parts = message.split(":")
-            device_id = parts[1]
-            connected_clients[device_id]["PlayOrPause"] = False
-            print(f"Device {device_id} paused.")
-            await broadcast_status(device_id, False)
+            usr_cookie = parts[1] + ":" + parts[2]
+            connected_clients[usr_cookie]["PlayOrPause"] = False
+            print(f"Device {usr_cookie} paused.")
+            await broadcast_status(usr_cookie, False)
         elif message.startswith("SYNC_MUSIC:"):
-            parts = message.split(":")
             device_id = parts[1]
 
 

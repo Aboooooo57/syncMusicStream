@@ -4,19 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Music Player (Master)</title>
-
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>WebSocket Music Player (Master)</h1>
-    <br><br>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h1>Couple Music Player</h1>
+                    </div>
+                    <div class="card-body text-center">
+                        <audio id="audioPlayer" controls class="w-100">
+                            <source src="{{ mp3_url }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <button onclick="syncMusic()" class="btn btn-primary mt-3">Sync Music</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <audio id="audioPlayer" controls>
-
-        <source src="{{ mp3_url }}" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-    <button onclick="syncMusic()">Sync Music</button> <!-- New button for syncing music -->
-
+    <script src="{{ url_for('static', path='js/js.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-<script src="{{ url_for('static', path='js/js.js') }}"></script>
 </html>

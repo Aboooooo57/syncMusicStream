@@ -16,14 +16,17 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="templates"), name="static")
 
+
 def hash_file_name(file_name) -> str:
     return sha256((file_name + str(datetime.now())).encode()).hexdigest()
 
 
-def generate_cookie_value():
-    random_bytes = os.urandom(32)
-    hash_object = sha256(random_bytes)
-    return hash_object.hexdigest()
+def generate_cookie_value(version_id):
+    return f"{version_id}:{sha256(os.urandom(18)).hexdigest()}"
+    # random_bytes = os.urandom(32)
+    # hash_object = sha256(random_bytes)
+    # return hash_object.hexdigest()
+
 
 @app.get("/upload")
 async def upload():
@@ -44,9 +47,9 @@ async def upload_file(file: UploadFile = File(...)):
         "message": "File uploaded successfully!"}
 
 
-def check_cookie(request: Request, response: Response):
+def check_cookie(request: Request, response: Response, version_id: str):
     if not request.cookies.get("usr"):
-        response.set_cookie(key="usr", value=generate_cookie_value())
+        response.set_cookie(key="usr", value=generate_cookie_value(version_id))
     return response
 
 
@@ -54,9 +57,9 @@ def check_cookie(request: Request, response: Response):
 async def listen(request: Request, token: str):
     try:
         link = f"http://{HOST}/stream/{token}"
-        html_content = templates.get_template("index.html").render(mp3_url=link,request=request)
+        html_content = templates.get_template("index.html").render(mp3_url=link, request=request)
         response = HTMLResponse(content=html_content)
-        response = check_cookie(request, response)
+        response = check_cookie(request, response, token.split(":")[0])
 
         return response
     except InvalidResponseError as err:
