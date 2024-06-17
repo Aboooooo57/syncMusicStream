@@ -34,7 +34,7 @@ function initWebSocket() {
                 }
             }
         } else if (message.startsWith("position_update:")) {
-            const position = parseFloat(parts[2]);
+            const position = parseFloat(parts[3]);
             console.log("Received position update from device:", recDeviceId, "Position:", position);
             if (!isNaN(position)) {
                 audioPlayer.currentTime = position;
