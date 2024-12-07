@@ -23,9 +23,6 @@ def hash_file_name(file_name) -> str:
 
 def generate_cookie_value(version_id):
     return f"{version_id}:{sha256(os.urandom(18)).hexdigest()}"
-    # random_bytes = os.urandom(32)
-    # hash_object = sha256(random_bytes)
-    # return hash_object.hexdigest()
 
 
 @app.get("/upload")

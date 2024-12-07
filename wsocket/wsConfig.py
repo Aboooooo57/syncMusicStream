@@ -10,7 +10,7 @@ async def connect_or_reconnect(websocket_connection):
         try:
             host = SOCKET_SERVER
             port = int(SOCKET_SERVER_PORT) if isinstance(SOCKET_SERVER_PORT, str) else SOCKET_SERVER_PORT
-            websocket_connection = await websockets.connect(f"ws://{host}:{port}")
+            await websockets.connect(f"ws://{host}:{port}")
             return True
         except Exception as e:
 
@@ -38,7 +38,6 @@ async def broadcast_status(usr_cookie, status):
     parts = usr_cookie.split(":")
     version_id = parts[0]
     device_id = parts[1]
-    # print(status)
     for other_id, other_data in connected_clients.items():
         # print(other_id != f"{version_id}:{device_id}", "first" * 4)
         # print(connected_clients[other_id]["PlayOrPause"], "second" * 10)
