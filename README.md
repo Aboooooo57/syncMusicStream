@@ -4,7 +4,7 @@ A basic implementation of a FastAPI application for synchronous music streaming 
 
 ## Project Information
 
-- **Version**: 1.0.0  
+- **Version**: 0.0.5  
 - **Author**: Abolfazl Saeedi  
 - **License**: MIT  
 
