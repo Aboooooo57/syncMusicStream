@@ -10,21 +10,15 @@ A basic implementation of a FastAPI application for synchronous music streaming 
 
 ## Requirements
 
-- Python >= 3.9  
-- FastAPI >= 0.95.2  
-- Jinja2 >= 3.1.2  
-- Uvicorn >= 0.22.0  
-- MinIO >= 7.1.15  
-- Websockets >= 10.4  
+- Docker  
+- Docker Compose  
 
-## Setup
-
-### Environment Variables
+## Environment Variables
 
 - `MINIO_BUCKET_NAME`: Name of the MinIO bucket.  
 - `HOST`: Hostname or IP address of the service.  
 
-### Directory Structure
+## Directory Structure
 
 - `templates/`: Contains Jinja2 templates (e.g., `upload.html`, `index.html`).  
 - `templates/static/`: Contains static files (e.g., CSS, JavaScript, images).  
@@ -47,19 +41,27 @@ A basic implementation of a FastAPI application for synchronous music streaming 
 - **Token-based access**: Securely access uploaded files using tokens.  
 - **User identity tracking**: Use cookies to track user sessions.  
 
-## Usage
+## Setup with Docker
 
-1. Install dependencies:  
-   ```bash
-   pip install -r requirements.txt
-   ```
-2.	Set environment variables for MINIO_BUCKET_NAME and HOST.
-3.	Run the application:
-   ```bash
-   unicorn main:app --reload
-   ```
-4.	Access the file upload form at:
-    http://localhost:8000/upload.
+### Prerequisites
 
+- Install [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/).
+
+### Steps
+
+1. Clone the repository:  
+   ```bash
+   git clone https://github.com/Aboooooo57/syncMusicStream.git
+   cd syncMusicStream
+   ```
+2.	Edit an .env.example to .env file in the project root and configure the required environment variables
+3.	Build and start the services using Docker Compose:
+   ```bash
+   docker-compose up --build
+   ```
+4.	Access the application:
+	•	File upload form: http://localhost:8000/upload
+
+Contact
 For support or inquiries, contact:
 Email: abolfazl.saeedi9775@gmail.com
