@@ -54,7 +54,7 @@ A basic implementation of a FastAPI application for synchronous music streaming 
    git clone https://github.com/Aboooooo57/syncMusicStream.git
    cd syncMusicStream
    ```
-2.	Edit an .env.example to .env file in the project root and configure the required environment variables
+2.	Edit .env.example to .env file in the project root and configure the required environment variables
 3.	Build and start the services using Docker Compose:
    ```bash
    docker-compose up --build
