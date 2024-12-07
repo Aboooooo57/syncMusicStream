@@ -1,6 +1,6 @@
 let websocket;
-let reconnectInterval = 1000; // Initial reconnect interval in milliseconds
-const maxReconnectInterval = 16000; // Maximum reconnect interval in milliseconds
+let reconnectInterval = 1000;
+const maxReconnectInterval = 16000;
 const deviceId = getCookie("usr");
 let locallyInitiatedPlay = false;
 let callerId = deviceId;
@@ -12,7 +12,7 @@ function initWebSocket() {
     websocket.onopen = function (event) {
         console.log("WebSocket connection established.");
         registerDevice();
-        reconnectInterval = 1000; // Reset the reconnect interval on successful connection
+        reconnectInterval = 1000;
     };
 
     websocket.onmessage = function (event) {
