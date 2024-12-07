@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Upload</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         #progress {
             width: 100%;
@@ -11,6 +12,8 @@
             background-color: #f0f0f0;
             margin-bottom: 10px;
             position: relative;
+            border-radius: 5px;
+            overflow: hidden;
         }
 
         #bar {
@@ -24,71 +27,86 @@
     </style>
 </head>
 <body>
-<h1>Upload Music</h1>
-<form id="uploadForm" enctype="multipart/form-data">
-    <input type="file" id="fileInput" name="file">
-    <input type="submit" value="Upload">
-</form>
-<div id="progress">
-    <div id="bar"></div>
-</div>
-<div id="status"></div>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h1>Upload Music</h1>
+                    </div>
+                    <div class="card-body">
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <input type="file" id="fileInput" name="file" class="form-control-file">
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" value="Upload" class="btn btn-primary">
+                            </div>
+                        </form>
+                        <div id="progress">
+                            <div id="bar"></div>
+                        </div>
+                        <div id="status" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script>
-    const form = document.getElementById('uploadForm');
-    const progressBar = document.getElementById('bar');
-    const status = document.getElementById('status');
+    <script>
+        const form = document.getElementById('uploadForm');
+        const progressBar = document.getElementById('bar');
+        const status = document.getElementById('status');
 
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
 
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileInput');
+            formData.append('file', fileInput.files[0]);
 
-    form.addEventListener('submit', async function (event) {
-        event.preventDefault();
+            const response = await fetch('/uploadfile', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
 
-        const formData = new FormData();
-        const fileInput = document.getElementById('fileInput');
-        formData.append('file', fileInput.files[0]);
+            const result = await response.json();
+            const linkElement = document.createElement('a');
+            linkElement.href = result.link;
+            linkElement.textContent = 'Click here to access the uploaded file';
+            linkElement.target = '_blank';
+            const copyButton = document.createElement('button');
+            copyButton.textContent = 'Copy to Clipboard';
+            copyButton.className = 'btn btn-secondary ml-2';
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(result.link)
+                    .then(() => {
+                        alert('Link copied to clipboard!');
+                    })
+                    .catch((error) => {
+                        console.error('Failed to copy link: ', error);
+                    });
+            });
 
-        const response = await fetch('/uploadfile', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json'
-            }
+            status.innerHTML = ''; // Clear existing content
+            status.appendChild(linkElement);
+            status.appendChild(copyButton);
         });
 
-        const result = await response.json();
-        const linkElement = document.createElement('a');
-        linkElement.href = result.link;
-        linkElement.textContent = 'Click here to access the uploaded file';
-        linkElement.target = '_blank';
-
-        const copyButton = document.createElement('button');
-        copyButton.textContent = 'Copy to Clipboard';
-        copyButton.addEventListener('click', () => {
-            navigator.clipboard.writeText(result.link)
-                .then(() => {
-                    alert('Link copied to clipboard!');
-                })
-                .catch((error) => {
-                    console.error('Failed to copy link: ', error);
-                });
+        form.addEventListener('change', function () {
+            status.textContent = '';
         });
 
-        status.innerHTML = ''; // Clear existing content
-        status.appendChild(linkElement);
-        status.appendChild(copyButton);
-
-    });
-
-    form.addEventListener('change', function () {
-        status.textContent = '';
-    });
-
-    // Update progress bar while uploading
-    form.addEventListener('progress', function (event) {
-        const percent = (event.loaded / event.total) * 100;
-        progressBar.style.width = percent + '%';
-    });
-</script>
+        form.addEventListener('progress', function (event) {
+            const percent = (event.loaded / event.total) * 100;
+            progressBar.style.width = percent + '%';
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
