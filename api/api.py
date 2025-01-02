@@ -1,7 +1,7 @@
 import os
 
 from fastapi import FastAPI, File, UploadFile, Request
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response, RedirectResponse
 
 from minio_conf import MinioClient
 from settings import MINIO_BUCKET_NAME, HOST
@@ -22,8 +22,12 @@ def hash_file_name(file_name) -> str:
 
 
 def generate_cookie_value(version_id):
+    print(f"{version_id}:::::::::::This is Version ID ")
     return f"{version_id}:{sha256(os.urandom(18)).hexdigest()}"
 
+@app.get("/")
+async def root(request: Request):
+    return RedirectResponse("/upload",headers=request.headers)
 
 @app.get("/upload")
 async def upload():

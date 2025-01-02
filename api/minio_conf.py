@@ -71,7 +71,7 @@ class MinioClient:
         bucket_name = MINIO_BUCKET_NAME
         buffer = BytesIO()
         while True:
-            chunk = await file.read(1024)  # Read 1 KB at a time
+            chunk = await file.read(1024)
             if not chunk:
                 break
             buffer.write(chunk)

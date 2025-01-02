@@ -1,4 +1,6 @@
 import asyncio
+import time
+
 import websockets
 from settings import SOCKET_SERVER, SOCKET_SERVER_PORT
 
@@ -32,6 +34,19 @@ async def start_websocket_server():
 
 connected_clients = {}
 
+
+# async def cleanup_idle_clients():
+#     global connected_clients
+#     while True:
+#         to_remove = []
+#         for client_id, client_data in connected_clients.items():
+#             last_activity = client_data.get("last_activity", 0)
+#             if (time.time() - last_activity) > 45:
+#                 to_remove.append(client_id)
+#         for client_id in to_remove:
+#             print(f"Removing idle client {client_id}")
+#             del connected_clients[client_id]
+#         await asyncio.sleep(30)
 
 async def broadcast_status(usr_cookie, status):
     global connected_clients
@@ -68,6 +83,7 @@ async def websocket_handler(websocket, path):
     global connected_clients
     async for message in websocket:
         parts = message.split(":")
+        print(parts, "This is parts")
         device_id = parts[1] + ":" + parts[2]
         print(f"Received message: {message}")
         if message.startswith("REGISTER_DEVICE:"):
@@ -78,7 +94,7 @@ async def websocket_handler(websocket, path):
             position = float(parts[3])
             connected_clients[device_id]["position"] = position
             print(f"Device {device_id} updated position: {position}")
-            await broadcast_positions(device_id)
+            await broadcast_positions(device_id, position)
         elif message.startswith("PLAY:"):
             connected_clients[device_id]["PlayOrPause"] = True
             print(f"Device {device_id} playing.")
@@ -94,6 +110,8 @@ async def websocket_handler(websocket, path):
 async def broadcast_positions(device_id: str, position: float):
     global connected_clients
     message = f"position_update:{device_id}:{position}"
+    print(f"This is Broadcasting Positions Message {message}")
+    print(f"This is connected Clients {connected_clients}")
     for other_id, other_data in connected_clients.items():
         if other_id != device_id and device_id.split(":")[0] == other_id.split(":")[0]:
             await other_data["wsocket"].send(message)

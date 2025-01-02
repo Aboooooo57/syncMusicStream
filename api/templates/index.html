@@ -5,6 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Music Player (Master)</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        .card-body {
+            padding: 2rem;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            padding: 0.5rem 2rem;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        audio {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
@@ -15,7 +48,7 @@
                         <h1>Couple Music Player</h1>
                     </div>
                     <div class="card-body text-center">
-                        <audio id="audioPlayer" controls class="w-100">
+                        <audio id="audioPlayer" controls>
                             <source src="{{ mp3_url }}" type="audio/mpeg">
                             Your browser does not support the audio element.
                         </audio>
