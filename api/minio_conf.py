@@ -94,5 +94,21 @@ class MinioClient:
             content_type=file.content_type
         )
         print(len(buffer.getvalue()))
-        # buffer.close()
+        return now, res.version_id
+
+    async def save_buffer_to_minio(self, buffer: BytesIO, content_type: str):
+        bucket_name = MINIO_BUCKET_NAME
+        self.client.set_bucket_versioning(
+            bucket_name,
+            VersioningConfig(status="Enabled")
+        )
+        buffer.seek(0)
+        now = datetime.now().strftime("%Y%m%d%H%M%S%f")
+        res = self.client.put_object(
+            bucket_name,
+            now,
+            buffer,
+            len(buffer.getvalue()),
+            content_type=content_type
+        )
         return now, res.version_id
